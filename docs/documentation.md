@@ -459,7 +459,7 @@ Strict accuracy: 40% (8 matches). Soft accuracy: 50% (10 accepted). Junk shown: 
 
 ## Appendix C — Functional test of the platform
 
-Date: 30.10.2026, version 4. Most checks were run as an automated click-through in a test environment where the responses of the AI and OpenAlex were replaced by real articles and scores saved from earlier searches. Checks 3, 6, 33 and 34 were confirmed with live searches.
+Date: 30.10.2026, version 4. Most checks were run as an automated click-through in a test environment where the responses of the AI and OpenAlex were replaced by real articles and scores saved from earlier searches. Checks 3, 6, 9, 33 and 34 were confirmed with live searches.
 
 ### Search
 
@@ -473,7 +473,7 @@ Date: 30.10.2026, version 4. Most checks were run as an automated click-through 
 | 6 | Query in Russian | The site works; there may be few articles | The site works without errors; results, articles and scores are shown | Works |
 | 7 | Query with ? : « » ( ) | No error | Results opened with the title “What is «AI»? (deep: learning)”; no error | Works |
 | 8 | Empty query | The form is not submitted | The form was not submitted; the loading screen did not appear | Works |
-| 9 | Search with “Show paid articles too” | Some articles are marked “Paid access” | 4 articles marked “Paid access”, 7 marked “Open access”; the summary says “including paid” | Works |
+| 9 | Search with “Show paid articles too” | Some articles are marked “Paid access” | Live search on 30.10 (“Effect of AI tools on students' learning outcomes”): 222,707 articles in OpenAlex, the summary says “including paid”. All 19 articles shown were open access; one paid article appeared in the “Articles without an abstract” block, so the “Paid access” label on an article card was not seen in this search | Partly |
 
 ### Results
 
