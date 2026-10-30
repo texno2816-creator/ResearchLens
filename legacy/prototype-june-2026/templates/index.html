@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResearchLens</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🔬</div>
+  <div class="header-text">
+    <h1>ResearchLens</h1>
+    <p>AI research discovery assistant</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <h2>Find and understand research papers faster</h2>
+    <p class="hero-sub">Search across academic databases and get AI summaries, relevance scores, and citation-ready sources.</p>
+  </div>
+
+  <div class="search-panel">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="query" placeholder="Enter your research topic in English..." />
+      </div>
+      <button class="search-btn" id="searchBtn" onclick="doSearch()">Search</button>
+    </div>
+
+    <div class="advanced-toggle" onclick="toggleAdvanced()">
+      <span id="advToggleLabel">⚙️ Advanced filters</span>
+    </div>
+
+    <div class="filters-grid" id="advancedFilters" style="display:none">
+      <div class="filter-group">
+        <label>Year from</label>
+        <input type="number" id="year_start" placeholder="2020" min="1900" max="2026" />
+      </div>
+      <div class="filter-group">
+        <label>Year to</label>
+        <input type="number" id="year_end" placeholder="2024" min="1900" max="2026" />
+      </div>
+      <div class="filter-group">
+        <label>Min citations</label>
+        <input type="number" id="min_citations" placeholder="0" min="0" />
+      </div>
+      <div class="filter-group">
+        <label>Sort by</label>
+        <select id="sort_by">
+          <option value="fit">Research Fit</option>
+          <option value="citations">Citations</option>
+          <option value="year">Year</option>
+        </select>
+      </div>
+      <div class="filter-group toggle-group">
+        <label>Open access only</label>
+        <div class="toggle" id="oaToggle" onclick="toggleOA()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-bar" id="loadingBar"></div>
+
+  <div id="resultsHeader" style="display:none" class="results-header">
+    <div class="results-count">Found <span id="resultsCount">0</span> sources</div>
+    <div class="sources-info">
+      <span class="source-tag s2">Semantic Scholar</span>
+      <span class="source-tag oa">OpenAlex</span>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="status">
+      <div class="status-icon">📚</div>
+      <div class="status-text">Enter a research topic above to get started</div>
+    </div>
+  </div>
+</div>
+
+<!-- Deep Analysis Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="status"><div class="status-icon">⏳</div><div class="status-text">Analysing paper...</div></div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

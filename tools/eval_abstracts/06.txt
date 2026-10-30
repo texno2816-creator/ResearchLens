@@ -1,0 +1,16 @@
+An artificial neural network is a system that tries in
+various degrees to emulate a human brain in order to
+perform tasks that other computer systems are usually not
+fit to handle. Artificial neural networks are used in many
+different areas due to their ability to learn and adapt to
+many different tasks and make complex predictions. In
+gaming, computer controlled opponent behavior is
+usually rule based and dependent on specific conditions
+and can thus be predictable to a certain degree. As the
+field of AI and learning systems using artificial neural
+networks is being developed and expanded, it is
+inevitable that its use in gaming will be explored
+thoroughly. This short survey looks at the attempts of
+using artificial neural networks for opponents in board
+games and modern computer games, as well as other uses
+in gaming throughout the last 20 years. 

@@ -1,0 +1,9 @@
+The AI-driven optimization solution presented in this research is intended to address major production issues such as
+delamination and warping dynamically. The technology greatly improves the capacity to identify and anticipate faults,
+which boosts production efficiency. This is achieved by combining neural networks with robotic process automation
+(RPA). With a training accuracy of 98.3% and a validation accuracy of 97.1%, with a prediction time of only 14
+milliseconds, the Hybrid Neural Network Model—which integrates both Convolutional and Recurrent Neural Networks—
+showed remarkable performance. With its capacity to cut material waste by 20.4% and detect flaws with high accuracy,
+the system has the potential to revolutionize automated manufacturing. This AI-driven solution's modular design makes it
+simple to incorporate into current manufacturing procedures, providing a scalable and practical means of raising quality
+and cutting costs. 
