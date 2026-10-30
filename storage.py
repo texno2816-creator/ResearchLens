@@ -1,4 +1,3 @@
-"""Хранение данных в SQLite: история поисков (с оценками) и сообщения в поддержку."""
 import json
 import sqlite3
 from datetime import datetime
@@ -38,7 +37,7 @@ def _connect():
 def init_db():
     with _connect() as conn:
         conn.executescript(SCHEMA)
-        # База версии 1 не знала про колонку version — добавляем её, старые данные сохраняются
+        # Databases from version 1 have no "version" column: add it and keep the data
         columns = [row["name"] for row in conn.execute("PRAGMA table_info(searches)")]
         if "version" not in columns:
             conn.execute("ALTER TABLE searches ADD COLUMN version TEXT DEFAULT '1'")
@@ -49,7 +48,6 @@ def _now():
 
 
 def normalize_query(query):
-    """Убираем лишние пробелы и случайные кавычки по краям, чтобы кэш не дробился."""
     return " ".join(query.strip().strip('"“”«»\'').split())
 
 
@@ -67,7 +65,6 @@ def save_search(query, free_only, openalex_total, results, stats):
 
 
 def update_search(search_id, results, stats):
-    """Обновляет поиск после «Проверить ещё 20»."""
     is_empty = stats["yes"] + stats["unclear"] == 0
     with _connect() as conn:
         conn.execute(
@@ -92,7 +89,6 @@ def get_search(search_id):
 
 
 def find_cached(query, free_only):
-    """Последний поиск с тем же запросом, галочкой доступа, моделью и версией правил."""
     with _connect() as conn:
         row = conn.execute(
             "SELECT * FROM searches WHERE lower(query) = lower(?) AND free_only = ? AND model = ?"
@@ -118,7 +114,6 @@ def list_searches(only_empty=False, limit=200):
 
 
 def clear_history():
-    """Удаляет все поиски (и кэш). Сообщения в поддержку не трогает."""
     with _connect() as conn:
         conn.execute("DELETE FROM searches")
 

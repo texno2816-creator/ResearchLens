@@ -1,4 +1,3 @@
-"""Поиск статей через OpenAlex API и подготовка их к оценке."""
 import re
 
 import requests
@@ -7,7 +6,6 @@ import config
 
 OPENALEX_URL = "https://api.openalex.org/works"
 
-# Берём из OpenAlex только нужные поля, чтобы ответ был меньше и быстрее
 FIELDS = ",".join([
     "id",
     "display_name",
@@ -20,14 +18,13 @@ FIELDS = ",".join([
 
 
 def clean_query(query):
-    """OpenAlex отвечает ошибкой 400 на некоторые знаки (например, «?»).
-    Оставляем только буквы, цифры, пробелы, дефис и апостроф."""
+    """OpenAlex returns 400 for some characters such as "?", so keep only letters, digits, spaces, hyphens and apostrophes."""
     query = re.sub(r"[^\w\s\-']", " ", query)
     return " ".join(query.split())
 
 
 def rebuild_abstract(inverted_index):
-    """OpenAlex хранит аннотацию как {слово: [позиции]}. Собираем обратно в текст."""
+    """OpenAlex stores abstracts as {word: [positions]}; rebuild the text."""
     if not inverted_index:
         return ""
     positions = []
@@ -39,19 +36,17 @@ def rebuild_abstract(inverted_index):
 
 
 def simplify_work(work):
-    """Превращаем статью OpenAlex в словарь с нужными нам полями."""
     doi = work.get("doi") or ""
     openalex_id = work.get("id") or ""
     open_access = work.get("open_access") or {}
     topics = [t.get("display_name") for t in (work.get("topics") or []) if t.get("display_name")]
     return {
-        "id": openalex_id.rsplit("/", 1)[-1],  # короткий id, например W2741809807
+        "id": openalex_id.rsplit("/", 1)[-1],
         "title": work.get("display_name") or "(без названия)",
         "year": work.get("publication_year"),
         "abstract": rebuild_abstract(work.get("abstract_inverted_index")),
         "is_free": bool(open_access.get("is_oa")),
         "topics": topics,
-        # Ссылка: сначала DOI (страница статьи у издателя), иначе страница в OpenAlex
         "link": doi if doi else openalex_id,
         "has_doi": bool(doi),
     }
@@ -62,14 +57,11 @@ def _title_key(title):
 
 
 def _quality(article):
-    """Какую из копий одной статьи оставить: с аннотацией и DOI лучше."""
     return (bool(article["abstract"]), article["has_doi"], len(article["abstract"]))
 
 
 def remove_duplicates(articles):
-    """OpenAlex иногда хранит одну статью в нескольких записях (журнал, архив, препринт).
-    Оставляем одну — лучшую по качеству — на месте первой копии.
-    Возвращает (статьи без дублей, сколько дублей убрано)."""
+    """OpenAlex sometimes stores one paper as several records; keep the best copy."""
     best, order = {}, []
     for article in articles:
         key = _title_key(article["title"])
@@ -82,9 +74,6 @@ def remove_duplicates(articles):
 
 
 def select_for_scoring(articles, limit):
-    """Идём по выдаче OpenAlex по порядку и набираем `limit` статей с аннотацией.
-    Статьи без аннотации, встреченные по пути, не теряются: их покажем отдельно.
-    Возвращает (статьи для ИИ, статьи без аннотации)."""
     with_abstract, without_abstract = [], []
     for article in articles:
         if len(with_abstract) >= limit:
@@ -94,14 +83,6 @@ def select_for_scoring(articles, limit):
 
 
 def collect(query, free_only, start, limit, seen, first_page=None):
-    """Идёт по выдаче OpenAlex с позиции `start` и набирает `limit` новых статей с аннотацией.
-
-    - `seen` — названия уже показанных статей (ключи); копии пропускаются, набор пополняется.
-    - Если копия статьи попалась сначала без аннотации, а потом с аннотацией — берём вторую.
-    - `first_page` — уже загруженная первая страница (works, total), чтобы не запрашивать её дважды.
-
-    Возвращает словарь: to_score, without_abstract, duplicates, position (до куда дошли), total.
-    """
     page_size = config.OPENALEX_FETCH
     to_score, without_abstract = [], []
     no_abstract_by_key = {}
@@ -123,7 +104,6 @@ def collect(query, free_only, start, limit, seen, first_page=None):
             key = _title_key(work["title"])
             if key in seen:
                 duplicates += 1
-                # Ранее была копия без аннотации, а эта — с аннотацией: заменяем
                 earlier = no_abstract_by_key.pop(key, None)
                 if earlier is not None and work["abstract"]:
                     without_abstract.remove(earlier)
@@ -139,7 +119,7 @@ def collect(query, free_only, start, limit, seen, first_page=None):
             else:
                 without_abstract.append(work)
                 no_abstract_by_key[key] = work
-        if len(works) < page_size:  # это была последняя страница выдачи
+        if len(works) < page_size:
             break
 
     return {"to_score": to_score, "without_abstract": without_abstract,
@@ -151,7 +131,6 @@ def title_key(title):
 
 
 def search(query, free_only=True, limit=None, page=1):
-    """Ищет статьи в OpenAlex. Возвращает (список статей, сколько всего найдено в OpenAlex)."""
     params = {
         "search": clean_query(query),
         "per_page": limit or config.OPENALEX_FETCH,
@@ -175,6 +154,5 @@ def search(query, free_only=True, limit=None, page=1):
 
 
 def find_by_title(title):
-    """Ищет одну статью по точному названию (нужно для теста моделей). Возвращает статью или None."""
     works, _ = search(title, free_only=False, limit=1)
     return works[0] if works else None

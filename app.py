@@ -1,7 +1,3 @@
-"""ResearchLens — версия 2.
-
-Запуск: python app.py  → открыть http://127.0.0.1:5000
-"""
 from collections import Counter
 from functools import wraps
 
@@ -60,14 +56,11 @@ def search():
     if not query:
         return redirect(url_for("index"))
     free_only = request.args.get("paid") != "1"
-    # В тестовом режиме можно заставить оценить заново, без кэша
     fresh = is_test_mode() and request.args.get("fresh") == "1"
-    # exact=1 — «Искать именно так»: не исправлять опечатки
     exact = request.args.get("exact") == "1"
 
     if not fresh:
         cached = storage.find_cached(query, free_only)
-        # Поиск «именно так» с малым числом статей не мешает обычному поиску исправить опечатку
         skip = (cached and not exact and cached["stats"].get("exact")
                 and (cached["openalex_total"] or 0) < config.SPELLCHECK_BELOW)
         if cached and not skip:
@@ -77,7 +70,7 @@ def search():
     try:
         works, total = openalex.search(query, free_only=free_only)
 
-        # Мало результатов — возможно, опечатка. Пробуем исправленный запрос, как Google.
+        # Few results may mean a typo: try a corrected query
         if not exact and total < config.SPELLCHECK_BELOW:
             corrected = spelling.correct_query(query)
             if corrected:
@@ -114,10 +107,9 @@ def search():
 
 
 def can_check_more(data):
-    """Можно ли нажать «Проверить ещё 20»: есть ли ещё статьи в выдаче и не достигнут ли предел."""
     stats = data["stats"]
     position = stats.get("position")
-    if position is None:  # поиски версии 1 не помнят позицию
+    if position is None:
         return False
     if position >= (data["openalex_total"] or 0):
         return False
@@ -143,7 +135,7 @@ def check_more(search_id):
         batch = openalex.collect(data["query"], bool(data["free_only"]), start=stats["position"],
                                  limit=min(config.ARTICLES_TO_SCORE, left), seen=seen)
         if not batch["to_score"] and not batch["without_abstract"]:
-            stats["position"] = data["openalex_total"] or stats["position"]  # выдача закончилась
+            stats["position"] = data["openalex_total"] or stats["position"]
             storage.update_search(search_id, old_results, stats)
             flash("В выдаче OpenAlex больше нет новых статей по этому запросу.")
             return redirect(back)
@@ -156,7 +148,6 @@ def check_more(search_id):
                                title="База статей OpenAlex не ответила",
                                message=f"Попробуй ещё раз через минуту. Техническая причина: {e}"), 502
 
-    # Складываем счётчики старых и новых статей
     for key in ("seconds", "tokens", "total", "yes", "unclear", "no", "no_abstract", "errors"):
         stats[key] = round(stats.get(key, 0) + new_stats[key], 1)
     stats["duplicates"] = stats.get("duplicates", 0) + batch["duplicates"]
@@ -180,7 +171,7 @@ def results(search_id):
     without_abstract = [a for a in all_articles if a.get("no_abstract")]
     scored = [a for a in all_articles if not a.get("no_abstract")]
     visible = [a for a in scored if a["category"] in ("Yes", "Unclear")]
-    # Пользователь видит только Yes и Unclear; в тестовом режиме видно всё
+    # Users only see Yes and Unclear; test mode shows everything
     shown = scored if is_test_mode() else visible
 
     years = Counter(a["year"] for a in visible if a.get("year"))
@@ -215,7 +206,7 @@ def support():
         storage.save_support_message(query, message, (request.form.get("contact") or "").strip())
         flash("Сообщение отправлено. Спасибо, что помогаешь улучшить поиск.")
     back = request.form.get("back") or ""
-    # Возвращаем только на страницы этого сайта
+    # Only redirect back to pages of this site
     return redirect(back if back.startswith("/") else url_for("index"))
 
 
@@ -233,8 +224,6 @@ def folders_redirect():
 def about():
     return render_template("about.html")
 
-
-# ---------- Тестовый режим ----------
 
 @app.route("/test-login", methods=["GET", "POST"])
 def test_login():

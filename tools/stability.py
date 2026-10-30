@@ -1,21 +1,3 @@
-"""Проверка стабильности моделей: одинаковые ли категории ставит модель,
-если оценивать одни и те же статьи несколько раз подряд.
-
-Берёт ровно те 20 статей на каждый из 3 тестовых запросов, которые ты оценивал вручную
-(последний сохранённый поиск по запросу в researchlens.db, только бесплатные статьи).
-Нумерация статей — по алфавиту, как в таблице «Ручная_оценка_60_статей.xlsx».
-
-Что считается:
-- Стабильность = статьи, у которых категория одинаковая во ВСЕХ прогонах, / 20.
-- Опасные смены = статьи, которые хотя бы раз были No и хотя бы раз Yes/Unclear
-  (пользователь то видит статью, то нет).
-- Безопасные смены = только Yes <-> Unclear (статья видна в любом случае).
-
-Запуск из папки проекта:
-    python tools/stability.py
-    python tools/stability.py --runs 5 --models groq:openai/gpt-oss-20b
-Результаты: tools/stability_results.csv (каждый прогон) и итог в терминале.
-"""
 import argparse
 import csv
 import json
@@ -26,8 +8,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import config  # noqa: E402
-from services import llm_client, scorer  # noqa: E402
+import config
+from services import llm_client, scorer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS_FILE = os.path.join(HERE, "stability_results.csv")
@@ -45,9 +27,7 @@ DEFAULT_MODELS = [
 
 
 def load_articles(query):
-    """Последний поиск по запросу (только бесплатные) — те самые 20 статей."""
     conn = sqlite3.connect(config.DB_PATH)
-    # rstrip убирает случайную кавычку в конце запроса (в одном прогоне она была)
     rows = conn.execute(
         "SELECT query, results_json FROM searches WHERE free_only = 1 ORDER BY id DESC"
     ).fetchall()
@@ -75,7 +55,6 @@ def main():
             return
         data[q] = articles
 
-    # categories[(model, query)][номер статьи] = [категория в прогоне 1, 2, ...]
     categories = {}
     total = args.runs * len(QUERIES) * len(args.models)
     done = 0
@@ -85,7 +64,6 @@ def main():
         writer = csv.writer(f)
         writer.writerow(["model", "query", "run", "n", "title", "category", "score"])
 
-        # Модели чередуются: у каждой свой лимит Groq, поэтому так быстрее
         for run in range(1, args.runs + 1):
             for q_index, q in enumerate(QUERIES, start=1):
                 for spec in args.models:

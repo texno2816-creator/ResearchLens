@@ -1,5 +1,5 @@
-// ResearchLens v4 «Картотека» — всё, что работает в браузере.
-// Ящик картотеки на главной, экран загрузки, фильтры с «фокусом», полоска статей, аннотации, проекты (localStorage).
+
+
 (function () {
   "use strict";
 
@@ -11,7 +11,6 @@
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
 
-  // ---------- localStorage без падений ----------
   function readJSON(key, fallback) {
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
   }
@@ -19,7 +18,6 @@
     try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
   }
 
-  // ---------- Тема ----------
   var themeButton = $("[data-theme-toggle]");
   if (themeButton) {
     themeButton.addEventListener("click", function () {
@@ -27,11 +25,10 @@
       var current = root.dataset.theme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       var next = current === "dark" ? "light" : "dark";
       root.dataset.theme = next;
-      try { localStorage.setItem("rl-theme", next); } catch (e) { /* без сохранения */ }
+      try { localStorage.setItem("rl-theme", next); } catch (e) {  }
     });
   }
 
-  // ---------- Уведомления исчезают сами ----------
   $all("[data-toast]").forEach(function (toast, i) {
     setTimeout(function () {
       toast.classList.add("is-leaving");
@@ -39,7 +36,6 @@
     }, 4200 + i * 400);
   });
 
-  // ---------- Экран загрузки («линза сканирует») ----------
   var scan = $("[data-scan]");
   var SEARCH_STEPS = [
     "Ищу статьи в OpenAlex",
@@ -81,7 +77,7 @@
     if (scan) scan.hidden = true;
     $all("button[type=submit]").forEach(function (b) { b.disabled = false; });
   }
-  // Возврат кнопкой «Назад» — убираем загрузку
+
   window.addEventListener("pageshow", hideScan);
 
   $all("[data-search-form]").forEach(function (form) {
@@ -108,7 +104,6 @@
     });
   });
 
-  // Примеры запросов на главной
   $all("[data-example]").forEach(function (chip) {
     chip.addEventListener("click", function () {
       var input = $(".search--hero input[name=q]");
@@ -118,7 +113,6 @@
     });
   });
 
-  // Подтверждение очистки истории вторым нажатием
   $all("[data-confirm-form]").forEach(function (form) {
     var button = $("[data-confirm-button]", form);
     var armed = false;
@@ -131,8 +125,6 @@
     });
   });
 
-  // ---------- Ящик картотеки на главной ----------
-  // ИИ «перебирает» карточки: неподходящие падают, на подходящие ставится штамп, и их вынимают в стопку.
   var frame = $("[data-catalog-frame]");
   if (frame) {
     var stageEl = $("[data-catalog-stage]", frame);
@@ -258,7 +250,7 @@
 
     for (var i = 0; i < SLOTS; i++) addBack(false);
     if (reduceMotion) {
-      // Без анимации: одна отобранная карточка уже лежит в стопке
+
       var hit = source.filter(function (it) { return it.score; })[0];
       if (hit) {
         var still = makeCard(hit);
@@ -279,7 +271,6 @@
     }
   }
 
-  // ---------- Подсказки, которые печатаются в поле поиска ----------
   var typingInput = $("[data-typing]");
   if (typingInput && !reduceMotion) {
     var basePlaceholder = typingInput.placeholder;
@@ -312,12 +303,11 @@
     typingTimer = setTimeout(typingTick, 2200);
   }
 
-  // ---------- Проекты (хранятся в браузере) ----------
   var PROJECTS_KEY = "researchlens_projects";
   function loadProjects() {
     var projects = readJSON(PROJECTS_KEY, null);
     if (projects && typeof projects === "object") return projects;
-    var old = readJSON("researchlens_folders", null); // папки из версии 1
+    var old = readJSON("researchlens_folders", null);
     if (old && typeof old === "object") { writeJSON(PROJECTS_KEY, old); return old; }
     return {};
   }
@@ -424,7 +414,7 @@
     });
   });
   document.addEventListener("click", function (event) {
-    // Кнопка проекта перерисовывается при клике — такой клик не считаем кликом «мимо меню»
+
     if (!event.target.isConnected) return;
     $all("[data-save][open]").forEach(function (details) {
       if (!details.contains(event.target)) details.open = false;
@@ -439,7 +429,6 @@
   });
   refreshSavedMarks();
 
-  // ---------- Аннотации: плавное раскрытие ----------
   $all("[data-abstract-toggle]").forEach(function (button) {
     var panel = document.getElementById(button.getAttribute("aria-controls"));
     if (!panel) return;
@@ -450,14 +439,13 @@
     });
   });
 
-  // ---------- Результаты: фильтры ----------
   var papers = $all(".papers .paper");
   var papersBox = $(".papers");
   if (papersBox && !reduceMotion) {
     papersBox.classList.add("reveal");
     var dotsBox = $(".dots");
     if (dotsBox) dotsBox.classList.add("reveal");
-    // Анимация появления — только один раз, потом класс убираем, чтобы фильтры работали без неё
+
     setTimeout(function () {
       papersBox.classList.remove("reveal");
       if (dotsBox) dotsBox.classList.remove("reveal");
@@ -531,7 +519,7 @@
       if (ok && !isNaN(yearFrom)) ok = !isNaN(year) && year >= yearFrom;
       if (ok && !isNaN(yearTo)) ok = !isNaN(year) && year <= yearTo;
       if (ok && topic) ok = topics.indexOf(topic) !== -1;
-      // Тип, которого нет среди переключателей (например, у статей «Не подходит» в тестовом режиме), не прячем
+
       if (ok && known.indexOf(paper.dataset.type) !== -1) ok = allowed.indexOf(paper.dataset.type) !== -1;
       setVisible(paper, ok);
       var dot = $('[data-dot="' + paper.id + '"]');
@@ -589,14 +577,13 @@
   });
   applyFilters();
 
-  // ---------- Точки статей ----------
   $all("[data-dot]").forEach(function (dot) {
     var paper = document.getElementById(dot.dataset.dot);
     if (!paper) return;
     dot.addEventListener("click", function (event) {
       event.preventDefault();
       if (paper.hidden) {
-        // Статья скрыта фильтрами — сбрасываем их, чтобы показать её
+
         var reset = $("[data-filter-reset]");
         if (reset) reset.click();
       }
@@ -605,7 +592,7 @@
       void paper.offsetWidth;
       paper.classList.add("is-target");
     });
-    // Подсказка не должна вылезать за край экрана
+
     var tip = $(".dot-tip", dot);
     function placeTip() {
       if (!tip) return;
@@ -621,7 +608,6 @@
     paper.addEventListener("mouseleave", function () { dot.classList.remove("is-lit"); });
   });
 
-  // ---------- Страница «Проекты» ----------
   var root = $("[data-projects-root]");
 
   function stamp(score, category) {
@@ -659,7 +645,6 @@
       section.className = "project";
       section.style.animationDelay = Math.min(index, 6) * 80 + "ms";
 
-      // Фасад ящика: латунный держатель с названием, счётчик и удаление
       var face = document.createElement("div");
       face.className = "project-face";
       var count = document.createElement("span");

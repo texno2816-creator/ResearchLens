@@ -1,5 +1,4 @@
-"""Инструкция для ИИ. Меняй текст здесь, чтобы улучшать оценку статей.
-После изменения увеличь PROMPT_VERSION в config.py — тогда старые оценки не возьмутся из кэша."""
+"""Instructions for the AI. After changing them, bump PROMPT_VERSION in config.py."""
 import config
 
 
@@ -38,7 +37,6 @@ Write the reason BEFORE deciding the score."""
 
 
 def shorten(text, limit=None):
-    """Обрезает слишком длинную аннотацию по границе слова, чтобы запрос влез в лимит токенов."""
     limit = limit or config.MAX_ABSTRACT_CHARS
     text = text or ""
     if len(text) <= limit:
@@ -48,7 +46,6 @@ def shorten(text, limit=None):
 
 
 def build_user_message(query, articles):
-    """Собирает сообщение с запросом и пачкой статей."""
     parts = [f'Search query: "{query}"', "", "Articles:"]
     for article in articles:
         parts.append(f"[id: {article['batch_id']}]")

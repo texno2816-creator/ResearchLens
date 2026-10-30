@@ -1,4 +1,3 @@
-{# Одна статья — карточка картотеки. Ожидает переменную a и номер loop_index (для очерёдности появления). #}
 {% set cat = a.category | lower %}
 {% set score_text = ('%.1f' | format(a.score)).replace('.', ',') %}
 <article class="paper cat-{{ cat }}" id="p-{{ a.id }}" style="--i: {{ loop_index }}"

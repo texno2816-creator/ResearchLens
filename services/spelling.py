@@ -1,6 +1,3 @@
-"""Исправление опечаток в запросе (как «Показаны результаты по запросу…» в Google).
-
-Вызывается только когда OpenAlex нашёл мало статей — так ИИ не тратится на обычные запросы."""
 import json
 import re
 
@@ -19,7 +16,6 @@ def _normalize(text):
 
 
 def correct_query(query):
-    """Возвращает исправленный запрос или None, если исправлять нечего или ИИ не ответил."""
     messages = [
         {"role": "system", "content": PROMPT},
         {"role": "user", "content": query},
@@ -32,7 +28,7 @@ def correct_query(query):
         return None
     if not corrected or _normalize(corrected) == _normalize(query):
         return None
-    # Защита от «переписывания»: исправление не должно сильно менять длину запроса
+    # Reject rewrites: a correction should not change the query length much
     if abs(len(corrected.split()) - len(query.split())) > 1:
         return None
     return corrected

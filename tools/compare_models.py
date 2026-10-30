@@ -1,20 +1,3 @@
-"""Сравнение моделей на эталоне — 20 статьях из шага 1 (таблица Google Scholar).
-
-Что делает:
-1. Берёт статьи из eval_google_scholar.csv (название + твоя оценка Yes/Unclear/No).
-2. Аннотацию берёт так (по порядку):
-   а) из файла tools/eval_abstracts/<номер>.txt, если ты вставил её туда вручную;
-   б) иначе из OpenAlex по названию (найденное сохраняется в eval_articles_fetched.csv).
-3. Предупреждает, если OpenAlex нашёл статью с другим названием или без аннотации.
-4. Каждая модель оценивает одни и те же статьи (можно несколько прогонов).
-5. Печатает точность (сколько категорий совпало с твоими), время и токены.
-   Подробности по каждой статье — в eval_results.csv.
-
-Запуск из папки проекта:
-    python tools/compare_models.py
-    python tools/compare_models.py --runs 2
-    python tools/compare_models.py --models groq:openai/gpt-oss-20b
-"""
 import argparse
 import csv
 import difflib
@@ -24,7 +7,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services import openalex, scorer  # noqa: E402
+from services import openalex, scorer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EVAL_FILE = os.path.join(HERE, "eval_google_scholar.csv")
@@ -38,7 +21,6 @@ DEFAULT_MODELS = [
     "groq:openai/gpt-oss-20b",
     "groq:qwen/qwen3.8-27b",
 ]
-# Насколько похожими должны быть названия, чтобы считать, что OpenAlex нашёл ту же статью
 TITLE_SIMILARITY = 0.85
 
 
@@ -49,10 +31,9 @@ def similar(a, b):
 
 
 def manual_abstract(number):
-    """Аннотация, вставленная вручную в eval_abstracts/03.txt и т.п."""
     path = os.path.join(ABSTRACTS_DIR, f"{number:02d}.txt")
     if os.path.exists(path):
-        with open(path, encoding="utf-8-sig") as f:  # utf-8-sig: блокнот Windows иногда добавляет метку в начало
+        with open(path, encoding="utf-8-sig") as f:
             return " ".join(f.read().split())
     return ""
 
@@ -83,7 +64,7 @@ def load_articles():
             else:
                 try:
                     found = openalex.find_by_title(row["title"])
-                except Exception as e:  # одна неудачная статья не должна ломать весь тест
+                except Exception as e:
                     print(f"Не удалось найти статью {n}: {e}")
                     found = None
                 if found:

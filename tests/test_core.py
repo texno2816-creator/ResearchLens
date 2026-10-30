@@ -1,7 +1,3 @@
-"""Проверки без интернета: OpenAlex и ИИ подменяются заранее заготовленными ответами.
-
-Запуск из папки проекта:  python -m pytest -q
-"""
 import json
 import os
 import sqlite3
@@ -11,11 +7,9 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import config  # noqa: E402
-from services import llm_client, openalex, scorer  # noqa: E402
+import config
+from services import llm_client, openalex, scorer
 
-
-# ---------- OpenAlex ----------
 
 def test_rebuild_abstract():
     assert openalex.rebuild_abstract({"world": [1], "Hello": [0], "again": [2]}) == "Hello world again"
@@ -49,7 +43,7 @@ def test_remove_duplicates_keeps_best_copy_in_first_place():
              art("3", "Targeting miRNA medicines?", "good abstract", True), art("4", "Paper B")]
     out, removed = openalex.remove_duplicates(items)
     assert removed == 1
-    assert [a["id"] for a in out] == ["1", "3", "4"]  # лучшая копия встала на место первой
+    assert [a["id"] for a in out] == ["1", "3", "4"]
 
 
 def test_select_for_scoring_replaces_articles_without_abstract():
@@ -58,8 +52,6 @@ def test_select_for_scoring_replaces_articles_without_abstract():
     assert [a["id"] for a in scored] == ["1", "3", "5"]
     assert [a["id"] for a in without] == ["2", "4"]
 
-
-# ---------- Оценка ----------
 
 def test_category_thresholds():
     assert scorer.category_for(7.5) == "Yes"
@@ -77,7 +69,6 @@ def test_parse_response_strips_think_clamps_and_reads_type():
 
 
 def fake_chat_factory(scores, calls):
-    """Подменённый ИИ: ставит баллы по названию статьи."""
     def fake_chat(messages, provider=None, model=None):
         calls.append(1)
         user = messages[1]["content"]
@@ -116,11 +107,9 @@ def test_score_articles(monkeypatch):
     assert by_title["NoAbstract"]["no_abstract"]
     assert by_title["Missing"]["error"]
     assert results[0]["title"] == "Good"
-    assert stats["total"] == 4 and stats["no_abstract"] == 1  # без аннотации не считается оценённой
-    assert len(calls) == 3  # 4 статьи по 2 = 2 пачки + 1 повтор для пачки с Missing
+    assert stats["total"] == 4 and stats["no_abstract"] == 1
+    assert len(calls) == 3
 
-
-# ---------- Сайт ----------
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
@@ -145,11 +134,10 @@ def test_user_sees_only_relevant_and_no_abstract_block(client, monkeypatch):
     html = r.get_data(as_text=True)
     assert r.status_code == 200
     assert "Good" in html and "Medium" in html
-    assert "Medicine" not in html                       # «Не подходит» скрыто
+    assert "Medicine" not in html
     assert "Статьи без аннотации: 1" in html and "NoAbstract" in html
     assert html.count('class="paper ') == 2
 
-    # Повторный запрос (другой регистр, кавычки) берётся из кэша — ИИ не вызывается
     n = len(calls)
     client.get('/search?q="Board+Games"', follow_redirects=True)
     assert len(calls) == n
@@ -168,14 +156,14 @@ def test_empty_result_support_admin_and_clear(client, monkeypatch):
     assert "Подходящих статей среди первых" in html
 
     client.post("/support", data={"query": "very narrow", "message": "help", "contact": "", "back": "https://evil.example"})
-    assert client.get("/admin").status_code == 302  # без пароля админка закрыта
+    assert client.get("/admin").status_code == 302
     client.post("/test-login", data={"password": "secret"})
     admin = client.get("/admin").get_data(as_text=True)
     assert "very narrow" in admin and "help" in admin
 
     client.post("/admin/clear")
     admin = client.get("/admin").get_data(as_text=True)
-    assert "Пока пусто" in admin and "help" in admin  # поиски удалены, сообщения остались
+    assert "Пока пусто" in admin and "help" in admin
 
 
 def test_nothing_found_in_openalex(client, monkeypatch):
@@ -196,11 +184,9 @@ def test_typo_is_corrected_like_google(client, monkeypatch):
     html = client.get("/search?q=Brian's+nerral+signals", follow_redirects=True).get_data(as_text=True)
     assert "Показаны результаты по запросу" in html and "Good" in html
 
-    # «Искать именно так» — без исправления
     html = client.get("/search?q=Brian's+nerral+signals&exact=1", follow_redirects=True).get_data(as_text=True)
     assert "OpenAlex не нашёл ни одной статьи" in html and "Показаны результаты" not in html
 
-    # После «именно так» обычный поиск снова исправляет опечатку
     html = client.get("/search?q=Brian's+nerral+signals", follow_redirects=True).get_data(as_text=True)
     assert "Показаны результаты по запросу" in html
 
@@ -210,15 +196,15 @@ def test_spelling_ignores_rewrites(monkeypatch):
     monkeypatch.setattr(llm_client, "chat", lambda m, provider=None, model=None: ('{"corrected": "brain\'s neural signals"}', 10))
     assert spelling.correct_query("Brian's nerral signals") == "brain's neural signals"
     monkeypatch.setattr(llm_client, "chat", lambda m, provider=None, model=None: ('{"corrected": "board games"}', 10))
-    assert spelling.correct_query("Board games") is None  # ничего не исправлено
+    assert spelling.correct_query("Board games") is None
     monkeypatch.setattr(llm_client, "chat", lambda m, provider=None, model=None: ('{"corrected": "a completely different long query here"}', 10))
-    assert spelling.correct_query("board games") is None  # переписал запрос — не принимаем
+    assert spelling.correct_query("board games") is None
 
 
 def test_collect_walks_pages_and_skips_seen(monkeypatch):
     monkeypatch.setattr(config, "OPENALEX_FETCH", 4)
     pool = [art(str(i), f"Paper {i}", "" if i in (2, 6) else "abs") for i in range(1, 15)]
-    pool[4]["title"] = "Paper 1"  # копия первой статьи
+    pool[4]["title"] = "Paper 1"
 
     def fake(q, free_only=True, limit=None, page=1):
         return pool[(page - 1) * 4: page * 4], len(pool)
@@ -231,9 +217,9 @@ def test_collect_walks_pages_and_skips_seen(monkeypatch):
     assert first["position"] == 4
 
     second = openalex.collect("q", True, start=first["position"], limit=3, seen=seen)
-    assert [a["id"] for a in second["to_score"]] == ["7", "8", "9"]  # 5 — копия, 6 — без аннотации
+    assert [a["id"] for a in second["to_score"]] == ["7", "8", "9"]
     assert [a["id"] for a in second["without_abstract"]] == ["6"]
-    assert second["duplicates"] == 1  # копия «Paper 1» пропущена
+    assert second["duplicates"] == 1
     ids = {a["id"] for a in first["to_score"] + second["to_score"]}
     assert len(ids) == 6
 
@@ -257,7 +243,6 @@ def test_check_more_adds_next_articles(client, monkeypatch):
     html = client.get(f"/results/{search_id}").get_data(as_text=True)
     assert html.count('class="paper ') == 4 and "Paper 3" in html and "Paper 4" in html
 
-    # Повторный поиск того же запроса берёт расширенный результат из кэша
     html = client.get("/search?q=papers", follow_redirects=True).get_data(as_text=True)
     assert html.count('class="paper ') == 4
 
@@ -312,11 +297,9 @@ def test_old_database_is_upgraded(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "DB_PATH", str(path))
     import storage
     storage.init_db()
-    assert storage.find_cached("q", True) is None  # старые оценки (версия 1) не используются как кэш
+    assert storage.find_cached("q", True) is None
     assert storage.list_searches()[0]["version"] == "1"
 
-
-# ---------- Лимит токенов Groq (ошибка 413) ----------
 
 def test_long_abstract_is_shortened():
     from prompts import shorten
@@ -353,4 +336,4 @@ def test_too_large_request_is_split(monkeypatch):
     articles = [{"id": str(i), "title": f"P{i}", "abstract": "text"} for i in range(5)]
     results, stats = scorer.score_articles("q", articles)
     assert stats["errors"] == 0 and stats["yes"] == 5
-    assert calls == [5, 2, 3, 1, 2]  # 5 не влезло → 2 + 3; 3 не влезло → 1 + 2
+    assert calls == [5, 2, 3, 1, 2]

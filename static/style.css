@@ -1,33 +1,19 @@
-/* ResearchLens v4 — «Картотека».
-   Мир старой библиотечной картотеки: библиотечный зелёный, латунь, бумага карточек,
-   штампы оценки и пометки библиотекаря. Все цвета и размеры — в токенах ниже. */
-
-/* ---------- Токены ---------- */
 :root {
-  --band: #163a2d;          /* библиотечный зелёный: шапка, верх страниц */
-  --band-deep: #0e281f;     /* фасад ящика, подвал */
-  --band-ink: #efe6d2;      /* текст на зелёном */
-  --band-muted: rgba(239, 230, 210, 0.68);
+  --band: #163a2d;  --band-deep: #0e281f;  --band-ink: #efe6d2;  --band-muted: rgba(239, 230, 210, 0.68);
   --band-line: rgba(239, 230, 210, 0.16);
-  --brass: #c9a352;         /* латунь: линза, держатели ярлыков, акценты на зелёном */
-  --brass-ink: #86661f;     /* латунь для текста на бумаге */
-
-  --bg: #ebe5d8;            /* стол */
-  --card: #fbf8f0;          /* карточка */
-  --card-2: #f4efe3;
+  --brass: #c9a352;  --brass-ink: #86661f;
+  --bg: #ebe5d8;  --card: #fbf8f0;  --card-2: #f4efe3;
   --ink: #1d1b16;
   --ink-2: #57513f;
   --ink-3: #8c846f;
   --line: #d9d1bf;
   --line-strong: #c4baa4;
-  --rule: rgba(64, 104, 168, 0.17);    /* синие линейки карточки */
-  --margin-rule: rgba(178, 58, 32, 0.28);
+  --rule: rgba(64, 104, 168, 0.17);  --margin-rule: rgba(178, 58, 32, 0.28);
 
   --yes: #1f6a4c;
   --unclear: #a06c10;
   --no: #b23a20;
-  --note: #2b3b70;          /* чернила пометок */
-  --primary: var(--band);
+  --note: #2b3b70;  --primary: var(--band);
   --primary-ink: var(--band-ink);
   --primary-hover: var(--band-deep);
 
@@ -79,7 +65,6 @@
   color-scheme: dark;
 }
 
-/* ---------- База ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: 24px; overflow-x: clip; }
 body {
@@ -96,7 +81,6 @@ body {
   overflow-x: clip;
 }
 body::after {
-  /* зерно бумаги поверх всего сайта */
   content: "";
   position: fixed;
   inset: 0;
@@ -138,7 +122,6 @@ p { margin: 0; }
 }
 .kicker--ink { color: var(--brass-ink); }
 
-/* ---------- Шапка и зелёные полосы ---------- */
 .band {
   position: relative;
   background: var(--band);
@@ -146,7 +129,6 @@ p { margin: 0; }
   isolation: isolate;
 }
 .band::before {
-  /* мягкий свет настольной лампы */
   content: "";
   position: absolute;
   inset: 0;
@@ -234,7 +216,6 @@ p { margin: 0; }
   :root:not([data-theme="light"]) .theme-moon { display: none; }
 }
 
-/* ---------- Кнопки и поля ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -311,7 +292,6 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 .switch input:checked + .switch-track::after { transform: translateX(16px); background: var(--brass); }
 .switch input:focus-visible + .switch-track { outline: 2px solid var(--brass); outline-offset: 2px; }
 
-/* ---------- Карточка поиска ---------- */
 .search-card {
   position: relative;
   padding: 18px 20px 16px;
@@ -321,7 +301,6 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6), 0 2px 0 rgba(0, 0, 0, 0.12);
 }
 .search-card::before {
-  /* красная линия заголовка, как на библиотечной карточке */
   content: "";
   position: absolute;
   left: 20px; right: 20px; top: 46px;
@@ -360,7 +339,6 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 .search--compact .search-row input { font-size: 1.3rem; min-height: 44px; }
 .search--compact .search-options { margin-top: 10px; }
 
-/* ---------- Главная: первый экран ---------- */
 .hero {
   padding: clamp(24px, 4vw, 44px) 0 clamp(56px, 7vw, 96px);
   overflow: hidden;
@@ -397,7 +375,6 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 }
 .chip:hover { border-style: solid; border-color: var(--brass); background: rgba(201, 163, 82, 0.08); }
 
-/* ---------- Штамп оценки (один для всего сайта) ---------- */
 .stamp {
   --c: var(--yes);
   position: relative;
@@ -442,7 +419,6 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* ---------- Ящик картотеки на главной ---------- */
 .catalog { margin: 0; justify-self: end; width: 100%; max-width: 560px; }
 html:not(.js) .catalog { display: none; }
 .catalog-frame { position: relative; width: 100%; aspect-ratio: 560 / 500; }
@@ -463,7 +439,6 @@ html:not(.js) .catalog { display: none; }
   pointer-events: none;
 }
 .drawer-inside {
-  /* внутренняя стенка ящика за карточками */
   position: absolute;
   left: 46px; width: 388px;
   bottom: 70px; height: 210px;
@@ -520,7 +495,6 @@ html:not(.js) .catalog { display: none; }
 }
 
 .cc {
-  /* одна карточка в ящике */
   position: absolute;
   left: 70px;
   bottom: 36px;
@@ -546,7 +520,6 @@ html:not(.js) .catalog { display: none; }
   background: rgba(178, 58, 32, 0.32);
 }
 .cc::after {
-  /* синие линейки */
   content: "";
   position: absolute;
   left: 18px; right: 18px; top: 112px; bottom: 34px;
@@ -627,7 +600,6 @@ html:not(.js) .catalog { display: none; }
 .catalog figcaption b { color: var(--band-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 .catalog figcaption .picked b { color: var(--brass); }
 
-/* ---------- Главная: как это работает ---------- */
 .method { padding: clamp(56px, 8vw, 110px) 0; }
 .method-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 32px; align-items: end; margin-bottom: 48px; }
 .method-head h2 { font: 500 clamp(2.2rem, 4.4vw, 3.6rem)/1 var(--serif); letter-spacing: -0.015em; }
@@ -652,7 +624,6 @@ html:not(.js) .catalog { display: none; }
 .step-art .mini-cards i.hit { background: var(--yes); }
 .step-art .note { font-size: 1.3rem; }
 
-/* ---------- Экран загрузки ---------- */
 .scan {
   position: fixed;
   inset: 0;
@@ -726,7 +697,6 @@ html:not(.js) .catalog { display: none; }
 .scan-progress li.is-done { background: var(--brass); }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-/* ---------- Результаты: верхняя полоса ---------- */
 .results-band { padding: 8px 0 34px; }
 .results-band .search { max-width: 760px; }
 .summary { margin-top: 34px; }
@@ -751,7 +721,6 @@ html:not(.js) .catalog { display: none; }
 .summary-line { max-width: 46rem; color: var(--band-muted); font-size: 1.02rem; }
 .summary-line b { color: var(--band-ink); font-weight: 600; }
 
-/* полоска карточек: одна вертикальная карточка — одна прочитанная статья, высота — балл */
 .dots { margin-top: 26px; }
 .dots-row {
   display: flex;
@@ -809,7 +778,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 .dist-legend .dot-unclear { background: rgba(239, 230, 210, 0.55); }
 .dist-legend .dot-no { background: repeating-linear-gradient(135deg, var(--band-muted) 0 2px, transparent 2px 4px); }
 
-/* служебная карточка тестового режима */
 .test-panel {
   margin-top: 26px;
   padding: 16px 18px;
@@ -822,7 +790,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 .test-panel dt { font: 500 0.64rem/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--band-muted); }
 .test-panel dd { margin: 3px 0 0; font-size: 0.92rem; overflow-wrap: anywhere; }
 
-/* ---------- Пустые состояния ---------- */
 .empty {
   position: relative;
   width: min(760px, 100% - 2 * var(--gutter));
@@ -845,7 +812,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 .support-form label { margin-top: 6px; font-size: 0.9rem; color: var(--ink-2); }
 .support-form button { justify-self: start; margin-top: 10px; }
 
-/* ---------- Результаты: раскладка и фильтры ---------- */
 .results-layout {
   display: grid;
   grid-template-columns: 252px minmax(0, 1fr);
@@ -874,7 +840,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 .rail-hint { margin-top: 10px; font-size: 0.82rem; line-height: 1.45; color: var(--ink-3); }
 .btn-block { margin-top: 18px; }
 
-/* «Фокус» — линейка */
 .focus-range {
   --pct: 0%;
   width: 100%;
@@ -979,7 +944,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 .select-wrap select { appearance: none; -webkit-appearance: none; padding-right: 36px; font-size: 0.9rem; }
 .select-wrap svg { position: absolute; right: 10px; top: 50%; width: 18px; height: 18px; margin-top: -9px; pointer-events: none; color: var(--ink-2); }
 
-/* ---------- Карточка статьи ---------- */
 .papers { display: grid; gap: 22px; min-width: 0; }
 .papers-count { font: 500 0.7rem/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
 .paper {
@@ -1073,7 +1037,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
   25% { box-shadow: 0 0 0 3px var(--brass), var(--shadow-lift); }
 }
 
-/* аннотация на линованной бумаге */
 .abstract { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s var(--ease); }
 .abstract.is-open { grid-template-rows: 1fr; }
 .abstract-inner { overflow: hidden; min-height: 0; }
@@ -1091,7 +1054,6 @@ a.dotlink:hover .dot-tip, a.dotlink:focus-visible .dot-tip { display: block; }
 html:not(.js) .abstract { grid-template-rows: 1fr; }
 html:not(.js) [data-abstract-toggle] { display: none; }
 
-/* сохранить в проект */
 .save { position: relative; }
 .save summary { cursor: pointer; }
 .save-on { display: none; }
@@ -1144,7 +1106,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .papers-none[hidden] { display: none; }
 .papers-none p { margin-bottom: 14px; }
 
-/* появление результатов: карточка выезжает, затем ставится штамп и пишется пометка */
 .reveal .paper { animation: card-in 0.6s var(--ease) both; animation-delay: calc(min(var(--i), 8) * 90ms); }
 .reveal .paper .stamp { animation: thump 0.5s cubic-bezier(0.3, 0.6, 0.3, 1) both; animation-delay: calc(min(var(--i), 8) * 90ms + 420ms); }
 .reveal .paper .note { animation: write 0.9s ease-out both; animation-delay: calc(min(var(--i), 8) * 90ms + 300ms); }
@@ -1153,7 +1114,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 @keyframes write { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
-/* ---------- Проверить ещё ---------- */
 .more {
   display: flex;
   flex-wrap: wrap;
@@ -1176,7 +1136,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .more .btn-primary:hover { background: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(201, 163, 82, 0.5); }
 :root[data-theme="dark"] .more .btn-primary:hover { background: var(--card-2); }
 
-/* статьи без аннотации */
 .no-abstract {
   width: min(var(--page), 100% - 2 * var(--gutter));
   margin: 28px auto 0;
@@ -1199,7 +1158,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .no-abstract li { padding: 10px 14px; border-left: 2px solid var(--line-strong); background: var(--card); border-radius: 0 4px 4px 0; }
 .no-abstract li a { font: 600 1.05rem/1.25 var(--serif); }
 
-/* ---------- Внутренние страницы ---------- */
 .page-band { padding: 26px 0 46px; }
 .page-band h1 { margin: 12px 0 14px; font: 500 clamp(2.4rem, 5.4vw, 4.4rem)/1 var(--serif); letter-spacing: -0.015em; }
 .page-band .lead { max-width: 42rem; color: var(--band-muted); font-size: 1.05rem; }
@@ -1212,7 +1170,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .login-form label { font: 500 0.68rem/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--band-muted); }
 .login-form button { justify-self: start; margin-top: 6px; }
 
-/* проекты — ящики картотеки */
 .projects { display: grid; gap: 34px; width: min(var(--page), 100% - 2 * var(--gutter)); margin: 44px auto 0; }
 .projects .empty { width: 100%; margin: 0; }
 .project { animation: card-in 0.6s var(--ease) both; }
@@ -1265,7 +1222,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .project-item .btn-small { justify-self: start; min-height: 30px; padding: 0 10px; font: 500 0.64rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
 .project-empty { grid-column: 1 / -1; padding: 18px; border: 1px dashed rgba(239, 230, 210, 0.25); border-radius: 4px; color: var(--band-muted); text-align: center; font-size: 0.95rem; }
 
-/* как это работает */
 .prose { width: min(760px, 100% - 2 * var(--gutter)); margin: 48px auto 0; }
 .prose h2 { margin: 48px 0 14px; font: 600 clamp(1.6rem, 3vw, 2.1rem)/1.1 var(--serif); }
 .prose h2:first-child { margin-top: 0; }
@@ -1281,7 +1237,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .rules td { border-radius: 0 4px 4px 0; color: var(--ink-2); }
 .rules .range { display: block; margin-top: 8px; font: 500 0.68rem/1 var(--mono); letter-spacing: 0.1em; color: var(--ink-3); }
 
-/* админка */
 .admin { width: min(var(--page), 100% - 2 * var(--gutter)); margin: 40px auto 0; }
 .admin-block + .admin-block { margin-top: 44px; }
 .admin-block h2 { display: flex; align-items: baseline; gap: 10px; font: 600 1.7rem/1.1 var(--serif); }
@@ -1296,7 +1251,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .data .num { text-align: right; font-family: var(--mono); font-size: 0.82rem; white-space: nowrap; }
 .data a { text-decoration-color: var(--brass); }
 
-/* ---------- Уведомления ---------- */
 .toast-zone { position: fixed; top: 18px; right: 18px; z-index: 950; display: grid; gap: 8px; max-width: min(380px, 100vw - 36px); }
 .toast {
   position: relative;
@@ -1323,7 +1277,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .toast.is-leaving { opacity: 0; transform: translateX(16px); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-10px) rotate(-1deg); } to { opacity: 1; transform: none; } }
 
-/* ---------- Подвал ---------- */
 .site-footer {
   margin-top: 90px;
   padding: 30px var(--gutter) 34px;
@@ -1337,7 +1290,6 @@ html:not(.js) [data-abstract-toggle] { display: none; }
 .footer-mark { font: 600 1.1rem/1 var(--serif); color: var(--band-ink); }
 .footer-mark em { color: var(--brass); }
 
-/* ---------- Адаптивность ---------- */
 @media (max-width: 1100px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
   .catalog { justify-self: center; }
