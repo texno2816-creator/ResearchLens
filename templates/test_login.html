@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Тестовый режим — ResearchLens{% endblock %}
+{% block content %}
+<section class="page-band band narrow">
+  <div class="wrap">
+    <p class="kicker">Для разработчика</p>
+    <h1>Тестовый режим</h1>
+    <p class="lead">Показывает все оценённые статьи, время, токены и открывает админку.</p>
+    <form method="post" class="login-form">
+      <label for="password">Пароль из файла .env</label>
+      <input id="password" type="password" name="password" required autofocus>
+      <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

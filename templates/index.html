@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+{# Карточки для ящика на главной: (название, год, оценка, если статья подходит) #}
+{% set field = [
+  ("Deep learning for gastrointestinal endoscopy", 2021, None),
+  ("Self-play reinforcement learning for the game of Go", 2017, "9,0"),
+  ("Board games and cognitive decline in older adults", 2019, None),
+  ("Training neural networks on low-power edge devices", 2022, None),
+  ("Convolutional networks for satellite crop monitoring", 2020, None),
+  ("Training a value network to evaluate chess positions", 2018, "8,5"),
+  ("Game theory in supply chain negotiation", 2016, None),
+  ("Neural networks in psychiatric diagnosis", 2023, None),
+  ("Board game lessons in primary school mathematics", 2015, None),
+  ("Temporal-difference learning in backgammon", 1995, "8,0"),
+  ("Neural signals recorded during video game play", 2021, None),
+  ("Transformers for protein structure prediction", 2022, None),
+  ("Reinforcement learning for warehouse robots", 2020, None),
+  ("Neural network agents for tabletop strategy games", 2023, "9,5"),
+  ("Serious games for health education", 2018, None),
+  ("Neural architecture search on mobile hardware", 2019, None),
+  ("Chess expertise and working memory", 2014, None),
+  ("Learning to play checkers from scratch with a neural network", 2001, "9,0"),
+  ("Graph neural networks for traffic forecasting", 2021, None),
+  ("Gamification of online learning platforms", 2020, None),
+  ("Spiking neural networks for robot control", 2022, None),
+  ("Board-game design for climate education", 2023, None)
+] %}
+<section class="hero band">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="kicker">Картотека открытых научных статей · OpenAlex</p>
+      <h1 class="hero-title"><span>Сотни миллионов</span> <span>научных статей.</span> <em>Найдём твои.</em></h1>
+      <p class="hero-lead">Обычный поиск выдаёт всё, где встречаются твои слова. ResearchLens читает аннотацию каждой статьи, ставит ей оценку и оставляет только подходящие, с пометкой, почему.</p>
+      {% with hero=True %}{% include "_search_form.html" %}{% endwith %}
+      <div class="examples">
+        <span class="examples-label">Например</span>
+        {% for ex in ["Training a neural network on board games", "The use of nanotechnology in medicine", "Effect of AI tools on students' learning outcomes"] %}
+          <button type="button" class="chip" data-example="{{ ex }}">{{ ex }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <figure class="catalog" data-catalog>
+      <div class="catalog-frame" data-catalog-frame>
+        <div class="catalog-stage" data-catalog-stage aria-hidden="true">
+          <span class="catalog-glow"></span>
+          <span class="drawer-inside"></span>
+          <div class="drawer-front">
+            <span class="label-holder"><span>neural network · board games</span></span>
+            <span class="drawer-pull"></span>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span>Так ИИ перебирает выдачу</span>
+        <span>Прочитано <b data-catalog-seen>0</b> · <span class="picked">отобрано <b data-catalog-picked>0</b></span></span>
+      </figcaption>
+      <ol hidden data-catalog-source>
+        {% for title, year, score in field %}<li data-year="{{ year }}" data-no="{{ 'W%07d' | format(2981034 + loop.index * 7919) }}"{% if score %} data-score="{{ score }}"{% endif %}>{{ title }}</li>{% endfor %}
+      </ol>
+    </figure>
+  </div>
+</section>
+
+<section class="method" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="method-head">
+      <h2 id="how-title">Как работает <em>картотека</em></h2>
+      <p>Большие базы находят тысячи статей по словам запроса. Большинство из них похожи на твою тему только словами. ResearchLens прочитывает их за тебя.</p>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <span class="step-num">I</span>
+        <h3>Ищет в OpenAlex</h3>
+        <p>Берёт статьи по запросу из открытой базы на сотни миллионов работ и убирает копии одной и той же статьи.</p>
+        <div class="step-art" aria-hidden="true"><span class="mini-cards">{% for h in [14, 22, 18, 30, 16, 26, 20, 12, 24] %}<i class="{{ 'hit' if h in (30, 26) else '' }}" style="height: {{ h }}px"></i>{% endfor %}</span></div>
+      </li>
+      <li class="step">
+        <span class="step-num">II</span>
+        <h3>Читает аннотации</h3>
+        <p>ИИ делит запрос на главное и второстепенное и оценивает каждую статью от 1 до 10.</p>
+        <div class="step-art" aria-hidden="true"><span class="note">про обучение нейросети на играх</span></div>
+      </li>
+      <li class="step">
+        <span class="step-num">III</span>
+        <h3>Оставляет нужное</h3>
+        <p>Неподходящие статьи скрыты. У остальных есть оценка, пометка с причиной и ссылка на оригинал.</p>
+        <div class="step-art" aria-hidden="true"><span class="stamp stamp--yes stamp--small">Подходит<b>9,0</b></span><span class="stamp stamp--unclear stamp--small">Частично<b>6,0</b></span></div>
+      </li>
+    </ol>
+  </div>
+</section>
+{% endblock %}

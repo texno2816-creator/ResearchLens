@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Проекты — ResearchLens{% endblock %}
+{% block content %}
+<section class="page-band band">
+  <div class="wrap">
+    <p class="kicker">Твоя картотека</p>
+    <h1>Проекты</h1>
+    <p class="lead">Каждый проект — отдельный ящик для статей, например по одному на каждую исследовательскую работу. Ящики хранятся в этом браузере: на другом устройстве их не будет.</p>
+    <form class="project-create" data-project-create>
+      <label class="visually-hidden" for="project-name">Название проекта</label>
+      <input id="project-name" type="text" placeholder="Название нового проекта" maxlength="60" required>
+      <button type="submit" class="btn btn-primary">Создать проект</button>
+    </form>
+  </div>
+</section>
+<div class="projects" data-projects-root></div>
+<template data-projects-empty>
+  <div class="empty">
+    <h2>Проектов пока нет</h2>
+    <p>Создай проект здесь или нажми «Сохранить» у любой статьи в результатах поиска.</p>
+    <p><a class="btn btn-primary" href="{{ url_for('index') }}">Перейти к поиску</a></p>
+  </div>
+</template>
+{% endblock %}

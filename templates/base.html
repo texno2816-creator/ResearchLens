@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ResearchLens — картотека, которая читает статьи за тебя{% endblock %}</title>
+  <meta name="description" content="ResearchLens находит научные статьи в OpenAlex, читает аннотации и оставляет только те, что подходят под твою тему, с объяснением.">
+  <meta name="theme-color" content="#163a2d">
+  <script>
+    // Тема применяется до отрисовки, чтобы страница не мигала
+    try { var t = localStorage.getItem("rl-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    document.documentElement.classList.add("js");
+  </script>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/cormorant-garamond-cyrillic-500-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fonts.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='lens.svg') }}" type="image/svg+xml">
+</head>
+<body class="page-{{ request.endpoint or 'none' }}">
+  <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6.5 3.75h11a.75.75 0 0 1 .75.75v15.6a.4.4 0 0 1-.64.32L12 16.25l-5.61 4.17a.4.4 0 0 1-.64-.32V4.5a.75.75 0 0 1 .75-.75Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bookmark-fill" viewBox="0 0 24 24"><path d="M6.5 3.75h11a.75.75 0 0 1 .75.75v15.6a.4.4 0 0 1-.64.32L12 16.25l-5.61 4.17a.4.4 0 0 1-.64-.32V4.5a.75.75 0 0 1 .75-.75Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4.75h5.25V10M19.25 4.75 11 13M17 14.5v3.75a1 1 0 0 1-1 1H5.75a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5.5 12.5 4.25 4.25L18.5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.5 12h14.5M13.5 6.5 19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.6A7.75 7.75 0 0 1 9.4 4.5a7.75 7.75 0 1 0 10.1 10.1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.75v2M12 19.25v2M4.75 12h-2M21.25 12h-2M6.9 6.9 5.5 5.5M18.5 18.5l-1.4-1.4M6.9 17.1l-1.4 1.4M18.5 5.5l-1.4 1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4.5 7h15M7.5 12h9M10.5 17h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <a class="skip" href="#main">Перейти к содержимому</a>
+
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="ResearchLens, на главную">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="13" cy="13" r="9.5" fill="none" stroke="currentColor" stroke-width="2.4"/>
+        <path d="M8.6 10.2a5.2 5.2 0 0 1 4.1-2.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>
+        <path d="M20.2 20.2 27 27" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span>Research<b>Lens</b></span>
+    </a>
+    <nav class="site-nav" aria-label="Основная навигация">
+      <a href="{{ url_for('index') }}" {% if request.endpoint in ('index', 'results') %}aria-current="page"{% endif %}>Поиск</a>
+      <a href="{{ url_for('projects') }}" {% if request.endpoint == 'projects' %}aria-current="page"{% endif %}>Проекты<span class="nav-count" data-projects-count hidden></span></a>
+      <a class="nav-about" href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}aria-current="page"{% endif %}>Как это работает</a>
+      {% if test_mode %}<a class="test-pill" href="{{ url_for('admin') }}" {% if request.endpoint == 'admin' %}aria-current="page"{% endif %}>Тест</a>{% endif %}
+      <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Сменить тему">
+        <svg class="theme-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <svg class="theme-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="toast-zone" role="status" aria-live="polite">
+        {% for m in messages %}<p class="toast" data-toast>{{ m }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main id="main">{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="footer-mark">Research<em>Lens</em></p>
+      <p>Статьи — из открытой базы <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>. Оценку ставит ИИ по названию и аннотации, поэтому перед цитированием всегда читай статью сам. <a href="{{ url_for('about') }}">Как это работает</a>{% if test_mode %} · <a href="{{ url_for('test_logout') }}">Выйти из тестового режима</a>{% endif %}</p>
+    </div>
+  </footer>
+
+  <div class="scan" data-scan hidden role="status" aria-live="polite">
+    <div class="scan-inner">
+      <div class="scan-drawer" aria-hidden="true">
+        {% for k in range(8) %}<i class="{{ 'hit' if k in (2, 5) else '' }}" style="--k: {{ k }}; z-index: {{ 10 - k }}"></i>{% endfor %}
+        <span class="scan-front"><span class="label-holder"><span>OpenAlex</span></span></span>
+      </div>
+      <p class="scan-query" data-scan-query></p>
+      <p class="scan-step" data-scan-step>Ищу статьи в OpenAlex</p>
+      <ol class="scan-progress" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

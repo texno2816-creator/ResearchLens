@@ -1,0 +1,58 @@
+{# Одна статья — карточка картотеки. Ожидает переменную a и номер loop_index (для очерёдности появления). #}
+{% set cat = a.category | lower %}
+{% set score_text = ('%.1f' | format(a.score)).replace('.', ',') %}
+<article class="paper cat-{{ cat }}" id="p-{{ a.id }}" style="--i: {{ loop_index }}"
+         data-score="{{ a.score }}" data-year="{{ a.year or '' }}" data-type="{{ a.type or 'other' }}"
+         data-topics='{{ a.topics | tojson }}'
+         data-article='{{ {"id": a.id, "title": a.title, "year": a.year, "link": a.link, "score": a.score, "category": a.category, "reason": a.reason, "type": a.type or "other", "is_free": a.is_free} | tojson }}'>
+  <header class="paper-meta">
+    <ul class="meta-list">
+      <li class="card-no">№ {{ '%02d' | format(loop_index + 1) }}</li>
+      <li>{{ a.year or "год неизвестен" }}</li>
+      <li>{{ work_type_labels[a.type or 'other'] }}</li>
+      <li>{{ "Открытый доступ" if a.is_free else "Платный доступ" }}</li>
+      {% if a.error %}<li class="warn">ИИ не смог оценить</li>{% endif %}
+    </ul>
+    <span class="stamp stamp--{{ cat }}" role="img" aria-label="Релевантность {{ score_text }} из 10, {{ category_labels[a.category] | lower }}">{{ category_labels[a.category] }}<b>{{ score_text }}</b></span>
+  </header>
+
+  <h3 class="paper-title"><a href="{{ a.link }}" target="_blank" rel="noopener">{{ a.title }}</a></h3>
+  {% if a.reason %}<p class="note"><span class="visually-hidden">Почему: </span>{{ a.reason }}</p>{% endif %}
+
+  <div class="paper-actions">
+    {% if a.abstract %}
+    <button type="button" class="action" data-abstract-toggle aria-expanded="false" aria-controls="abs-{{ a.id }}">
+      Аннотация<svg class="action-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
+    </button>
+    {% endif %}
+    <a class="action" href="{{ a.link }}" target="_blank" rel="noopener">
+      Открыть статью<svg aria-hidden="true"><use href="#i-external"/></svg>
+    </a>
+    <details class="save" data-save>
+      <summary class="action action-save" data-save-summary>
+        <svg class="save-off" aria-hidden="true"><use href="#i-bookmark"/></svg>
+        <svg class="save-on" aria-hidden="true"><use href="#i-bookmark-fill"/></svg>
+        <span data-save-label>Сохранить</span>
+      </summary>
+      <div class="save-panel">
+        <p class="save-panel-title">Положить в проект</p>
+        <div class="save-list" data-save-list></div>
+        <form class="save-new" data-save-new>
+          <label class="visually-hidden" for="new-{{ a.id }}">Название нового проекта</label>
+          <input id="new-{{ a.id }}" type="text" placeholder="Новый проект" maxlength="60" autocomplete="off">
+          <button type="submit" class="icon-btn icon-btn--filled" aria-label="Создать проект и сохранить"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
+        </form>
+        <p class="save-status" data-save-status role="status"></p>
+      </div>
+    </details>
+  </div>
+
+  {% if a.abstract %}
+  <div class="abstract" id="abs-{{ a.id }}" data-abstract>
+    <div class="abstract-inner"><p>{{ a.abstract }}</p>
+      {% if a.topics %}<p class="topics">Темы OpenAlex: {{ a.topics | join(" · ") }}</p>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+  <span class="punch" aria-hidden="true"></span>
+</article>

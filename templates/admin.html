@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Админка — ResearchLens</div>
+{% endblock %}
+{% block content %}
+<section class="page-band band">
+  <div class="wrap">
+    <p class="kicker">Тестовый режим</p>
+    <h1>Админка</h1>
+    <p class="lead">Модель: {{ config.LLM_PROVIDER }} / {{ config.LLM_MODEL }}, правила оценки версии {{ config.PROMPT_VERSION }}.</p>
+  </div>
+</section>
+<div class="admin">
+
+{% macro search_table(rows) %}
+<div class="table-wrap">
+<table class="data">
+  <thead>
+    <tr><th>Дата</th><th>Запрос</th><th>Доступ</th><th>Модель</th><th>Версия</th><th class="num">Подх. / част. / нет</th><th class="num">Без аннот.</th><th class="num">Время, с</th><th class="num">Токены</th></tr>
+  </thead>
+  <tbody>
+  {% for s in rows %}
+    <tr>
+      <td>{{ s.created }}</td>
+      <td><a href="{{ url_for('results', search_id=s.id) }}">{{ s.query }}</a></td>
+      <td>{{ "бесплатные" if s.free_only else "все" }}</td>
+      <td>{{ s.model }}</td>
+      <td>{{ s.version or "1" }}</td>
+      <td class="num">{{ s.stats.yes }} / {{ s.stats.unclear }} / {{ s.stats.no }}</td>
+      <td class="num">{{ s.stats.no_abstract }}</td>
+      <td class="num">{{ s.stats.seconds }}</td>
+      <td class="num">{{ s.stats.tokens }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="muted">Пока пусто</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}
+
+<section class="admin-block">
+  <h2>Запросы без подходящих статей <span class="count">{{ empty_searches | length }}</span></h2>
+  <p class="muted">Открой и проверь, не спрятал ли ИИ хорошие статьи.</p>
+  {{ search_table(empty_searches) }}
+</section>
+
+<section class="admin-block">
+  <h2>Сообщения в поддержку <span class="count">{{ messages | length }}</span></h2>
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Дата</th><th>Запрос</th><th>Сообщение</th><th>Контакт</th></tr></thead>
+    <tbody>
+    {% for m in messages %}
+      <tr><td>{{ m.created }}</td><td>{{ m.query }}</td><td>{{ m.message }}</td><td>{{ m.contact }}</td></tr>
+    {% else %}
+      <tr><td colspan="4" class="muted">Пока пусто</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="admin-block">
+  <div class="admin-block-head">
+    <h2>Все поиски <span class="count">{{ all_searches | length }}</span></h2>
+    <form method="post" action="{{ url_for('admin_clear') }}" data-confirm-form>
+      <button type="submit" class="btn btn-danger btn-small" data-confirm-button>Очистить историю</button>
+    </form>
+  </div>
+  <p class="muted">Очистка удаляет все поиски и кэш оценок. Сообщения в поддержку остаются.</p>
+  {{ search_table(all_searches) }}
+</section>
+</div>
+{% endblock %}

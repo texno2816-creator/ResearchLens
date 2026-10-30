@@ -1,0 +1,16 @@
+<form action="{{ url_for('search') }}" method="get" class="search {{ 'search--hero' if hero else 'search--compact' }}" data-search-form role="search">
+  <div class="search-card">
+    <label class="search-label" for="q{{ '-hero' if hero else '' }}"><span>Тема исследования</span><span aria-hidden="true">Карточка запроса</span></label>
+    <div class="search-row">
+      <input id="q{{ '-hero' if hero else '' }}" type="search" name="q" value="{{ query or '' }}" autocomplete="off" required
+             placeholder="{{ 'О чём твоё исследование?' if hero else 'Новый поиск' }}" {% if hero %}data-typing{% else %}aria-label="Тема исследования"{% endif %}>
+      <button type="submit" class="btn btn-primary search-submit">Найти<svg class="arrow" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+    </div>
+    <div class="search-options">
+      <label class="switch"><input type="checkbox" name="paid" value="1" {% if paid_checked %}checked{% endif %}><span class="switch-track" aria-hidden="true"></span>Показать и платные статьи</label>
+      {% if test_mode %}
+        <label class="switch"><input type="checkbox" name="fresh" value="1"><span class="switch-track" aria-hidden="true"></span>Оценить заново, без кэша</label>
+      {% endif %}
+    </div>
+  </div>
+</form>
